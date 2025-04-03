@@ -1,0 +1,261 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<style>
+    .chatbot-container {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 1000;
+        width: 350px;
+        max-width: 90%;
+    }
+    
+    .chatbot-header {
+        background-color: #4e73df;
+        color: white;
+        padding: 15px;
+        border-radius: 10px 10px 0 0;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .chatbot-body {
+        background-color: white;
+        border-radius: 0 0 10px 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        height: 400px;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .dark .chatbot-body {
+        background-color: #1e1e1e;
+    }
+    
+    .chatbot-messages {
+        flex: 1;
+        padding: 15px;
+        overflow-y: auto;
+    }
+    
+    .message {
+        margin-bottom: 15px;
+        max-width: 80%;
+    }
+    
+    .bot-message {
+        align-self: flex-start;
+        background-color: #f8f9fa;
+        padding: 10px 15px;
+        border-radius: 15px 15px 15px 0;
+    }
+    
+    .dark .bot-message {
+        background-color: #2a2a2a;
+    }
+    
+    .user-message {
+        align-self: flex-end;
+        background-color: #4e73df;
+        color: white;
+        padding: 10px 15px;
+        border-radius: 15px 15px 0 15px;
+    }
+    
+    .chatbot-input {
+        display: flex;
+        padding: 10px;
+        border-top: 1px solid #eee;
+    }
+    
+    .dark .chatbot-input {
+        border-top-color: #333;
+    }
+    
+    .chatbot-input input {
+        flex: 1;
+        padding: 10px;
+        border: 1px solid #ced4da;
+        border-radius: 5px;
+        margin-right: 10px;
+    }
+    
+    .dark .chatbot-input input {
+        background-color: #2a2a2a;
+        border-color: #444;
+        color: white;
+    }
+    
+    .chatbot-input button {
+        background-color: #4e73df;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        padding: 10px 15px;
+        cursor: pointer;
+    }
+    
+    .chatbot-minimized {
+        display: flex;
+        align-items: center;
+        background-color: #4e73df;
+        color: white;
+        padding: 10px 15px;
+        border-radius: 25px;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .chatbot-minimized i {
+        margin-right: 8px;
+    }
+    
+    .quick-replies {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 10px;
+    }
+    
+    .quick-reply {
+        background-color: #e9ecef;
+        padding: 5px 10px;
+        border-radius: 15px;
+        font-size: 0.8rem;
+        cursor: pointer;
+    }
+    
+    .dark .quick-reply {
+        background-color: #333;
+    }
+    
+    .typing-indicator {
+        display: inline-block;
+    }
+    
+    .typing-indicator span {
+        height: 8px;
+        width: 8px;
+        background-color: #6c757d;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 3px;
+        animation: typing 1s infinite ease-in-out;
+    }
+    
+    .typing-indicator span:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+    
+    .typing-indicator span:nth-child(3) {
+        animation-delay: 0.4s;
+    }
+    
+    @keyframes typing {
+        0% { transform: translateY(0); }
+        50% { transform: translateY(-5px); }
+        100% { transform: translateY(0); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Your existing content -->
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const chatbotContainer = document.createElement('div');
+    chatbotContainer.className = 'chatbot-container';
+    chatbotContainer.innerHTML = `
+        <div class="chatbot-minimized" id="chatbotMinimized">
+            <i class="fas fa-robot"></i>
+            <span>Need help?</span>
+        </div>
+        <div class="chatbot-window" id="chatbotWindow" style="display: none;">
+            <div class="chatbot-header" id="chatbotHeader">
+                <span>Sacred Journeys Assistant</span>
+                <i class="fas fa-times" id="closeChatbot"></i>
+            </div>
+            <div class="chatbot-body">
+                <div class="chatbot-messages" id="chatbotMessages"></div>
+                <div class="chatbot-input">
+                    <input type="text" id="userInput" placeholder="Type your message...">
+                    <button id="sendMessage"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(chatbotContainer);
+
+    const chatbotMinimized = document.getElementById('chatbotMinimized');
+    const chatbotWindow = document.getElementById('chatbotWindow');
+    const chatbotHeader = document.getElementById('chatbotHeader');
+    const closeChatbot = document.getElementById('closeChatbot');
+    const chatbotMessages = document.getElementById('chatbotMessages');
+    const userInput = document.getElementById('userInput');
+    const sendMessage = document.getElementById('sendMessage');
+
+    let isOpen = false;
+
+    // Toggle chatbot window
+    chatbotMinimized.addEventListener('click', function() {
+        isOpen = true;
+        chatbotMinimized.style.display = 'none';
+        chatbotWindow.style.display = 'block';
+        addBotMessage("Hello! I'm your Sacred Journeys assistant. How can I help you today?");
+    });
+
+    chatbotHeader.addEventListener('click', function() {
+        isOpen = !isOpen;
+        if (isOpen) {
+            chatbotMinimized.style.display = 'none';
+            chatbotWindow.style.display = 'block';
+        } else {
+            chatbotMinimized.style.display = 'flex';
+            chatbotWindow.style.display = 'none';
+        }
+    });
+
+    closeChatbot.addEventListener('click', function() {
+        isOpen = false;
+        chatbotMinimized.style.display = 'flex';
+        chatbotWindow.style.display = 'none';
+    });
+
+    // Add a message to the chat
+    function addMessage(text, isUser = false) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
+        messageDiv.textContent = text;
+        chatbotMessages.appendChild(messageDiv);
+        chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+    }
+
+    // Add bot message with typing indicator
+    function addBotMessage(text) {
+        const typingDiv = document.createElement('div');
+        typingDiv.className = 'message bot-message typing-indicator';
+        typingDiv.innerHTML = '<span></span><span></span><span></span>';
+        chatbotMessages.appendChild(typingDiv);
+        chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+
+        setTimeout(() => {
+            chatbotMessages.removeChild(typingDiv);
+            addMessage(text, false);
+            
+            // Add quick replies for common questions
+            if (text.includes("How can I help")) {
+                const quickReplies = document.createElement('div');
+                quickReplies.className = 'quick-replies';
+                quickReplies.innerHTML = `
+                    <div class="quick-reply">Book a trip</div>
+                    <div class="quick-reply">Check my bookings</div>
+                    <div class="quick-reply">Request a refund</div>
+                    <div class="quick-reply">Contact support</div>
+                `;
+                chatbotMessages.appendChild

@@ -136,11 +136,11 @@ def book_pilgrimage(pilgrimage_id):
             travel_date=form.travel_date.data,
             special_requirements=form.special_requirements.data
         )
-       
+        db.session.add(booking)
         db.session.commit()
         
-        flash('Getting Redirected', 'success')
-        return redirect(url_for('main.plan_trip'))
+        flash('Your booking has been confirmed!', 'success')
+        return redirect(url_for('main.dashboard'))
     
     for field, errors in form.errors.items():
         for error in errors:
