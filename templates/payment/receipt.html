@@ -4,303 +4,307 @@
 
 {% block extra_css %}
 <style>
-.receipt-container {
-    max-width: 800px;
-    margin: 0 auto;
-}
-
-.receipt {
-    background-color: #fff;
-    border-radius: 15px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-}
-
-.receipt-header {
-    background: linear-gradient(45deg, #1a233e, #3b4465);
-    color: white;
-    padding: 20px;
-    text-align: center;
-}
-
-.receipt-body {
-    padding: 30px;
-}
-
-.receipt-title {
-    font-family: 'Playfair Display', serif;
-    margin-bottom: 20px;
-    color: #1a233e;
-}
-
-.receipt-info {
-    margin-bottom: 30px;
-}
-
-.receipt-info-item {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 10px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #eee;
-}
-
-.receipt-info-item:last-child {
-    border-bottom: none;
-}
-
-.receipt-total {
-    background-color: #f8f9fa;
-    padding: 15px;
-    border-radius: 10px;
-    margin-top: 20px;
-}
-
-.receipt-actions {
-    margin-top: 30px;
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-}
-
-.receipt-actions .btn {
-    padding: 10px 20px;
-    border-radius: 25px;
-}
-
-.receipt-footer {
-    text-align: center;
-    margin-top: 20px;
-    color: #6c757d;
-    font-size: 0.9rem;
-}
-
-.confirmation-badge {
-    display: inline-block;
-    background-color: #28a745;
-    color: white;
-    padding: 5px 15px;
-    border-radius: 20px;
-    font-size: 0.9rem;
-    margin-bottom: 20px;
-}
-
-.price-breakdown {
-    background-color: #f9f9f9;
-    border-radius: 10px;
-    padding: 15px;
-    margin-top: 20px;
-}
-
-.price-breakdown-item {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 8px;
-    padding-bottom: 8px;
-    border-bottom: 1px dashed #eee;
-}
-
-.price-breakdown-item:last-child {
-    border-bottom: none;
-}
-
-.price-breakdown-total {
-    font-weight: bold;
-    margin-top: 10px;
-    padding-top: 10px;
-    border-top: 2px solid #eee;
-}
-
-.dark .receipt {
-    background-color: #1e1e1e;
-}
-
-.dark .receipt-title {
-    color: #fff;
-}
-
-.dark .receipt-info-item {
-    border-bottom-color: #333;
-}
-
-.dark .receipt-total {
-    background-color: #2a2a2a;
-}
-
-.dark .price-breakdown {
-    background-color: #2a2a2a;
-}
-
-.dark .price-breakdown-item {
-    border-bottom-color: #444;
-}
-
-.dark .price-breakdown-total {
-    border-top-color: #444;
-}
+  .receipt-container {
+      max-width: 800px;
+      margin: 0 auto;
+  }
+  
+  .receipt {
+      background-color: #fff;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+  }
+  
+  .receipt-header {
+      background: linear-gradient(45deg, #1a233e, #3b4465);
+      color: white;
+      padding: 20px;
+      text-align: center;
+  }
+  
+  .receipt-body {
+      padding: 30px;
+  }
+  
+  .receipt-title {
+      font-family: 'Playfair Display', serif;
+      margin-bottom: 20px;
+      color: #1a233e;
+  }
+  
+  .receipt-info {
+      margin-bottom: 30px;
+  }
+  
+  .receipt-info-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #eee;
+  }
+  
+  .receipt-info-item:last-child {
+      border-bottom: none;
+  }
+  
+  .receipt-total {
+      background-color: #f8f9fa;
+      padding: 15px;
+      border-radius: 10px;
+      margin-top: 20px;
+  }
+  
+  .receipt-actions {
+      margin-top: 30px;
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+  }
+  
+  .receipt-actions .btn {
+      padding: 10px 20px;
+      border-radius: 25px;
+  }
+  
+  .receipt-footer {
+      text-align: center;
+      margin-top: 20px;
+      color: #6c757d;
+      font-size: 0.9rem;
+  }
+  
+  .confirmation-badge {
+      display: inline-block;
+      background-color: #28a745;
+      color: white;
+      padding: 5px 15px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      margin-bottom: 20px;
+  }
+  
+  .price-breakdown {
+      background-color: #f9f9f9;
+      border-radius: 10px;
+      padding: 15px;
+      margin-top: 20px;
+  }
+  
+  .price-breakdown-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      padding-bottom: 8px;
+      border-bottom: 1px dashed #eee;
+  }
+  
+  .price-breakdown-item:last-child {
+      border-bottom: none;
+  }
+  
+  .price-breakdown-total {
+      font-weight: bold;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 2px solid #eee;
+  }
+  
+  .dark .receipt {
+      background-color: #1e1e1e;
+  }
+  
+  .dark .receipt-title {
+      color: #fff;
+  }
+  
+  .dark .receipt-info-item {
+      border-bottom-color: #333;
+  }
+  
+  .dark .receipt-total {
+      background-color: #2a2a2a;
+  }
+  
+  .dark .price-breakdown {
+      background-color: #2a2a2a;
+  }
+  
+  .dark .price-breakdown-item {
+      border-bottom-color: #444;
+  }
+  
+  .dark .price-breakdown-total {
+      border-top-color: #444;
+  }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="receipt-container animated-fade-in">
-<div class="receipt">
-    <div class="receipt-header">
-        <h1>Payment Receipt</h1>
-        <p>Thank you for your booking!</p>
-    </div>
-    
-    <div class="receipt-body">
-        <div class="text-center mb-4">
-            <span class="confirmation-badge">
-                <i class="fas fa-check-circle me-1"></i> Payment Confirmed
-            </span>
-            <h2 class="receipt-title">Your Sacred Journey is Confirmed</h2>
-            <p>Confirmation Code: <strong>{{ trip.confirmation_code }}</strong></p>
-            <p>Payment ID: <strong>{{ trip.payment_id }}</strong></p>
-        </div>
-        
-        <div class="row">
-            <div class="col-md-6">
-                <div class="receipt-info">
-                    <h3 class="h5 mb-3">Trip Details</h3>
-                    
-                    <div class="receipt-info-item">
-                        <span>Pilgrimage:</span>
-                        <span>{{ trip.pilgrimage.name }}</span>
-                    </div>
-                    
-                    <div class="receipt-info-item">
-                        <span>Location:</span>
-                        <span>{{ trip.pilgrimage.location }}</span>
-                    </div>
-                    
-                    <div class="receipt-info-item">
-                        <span>Start Date:</span>
-                        <span>{{ trip.start_date.strftime('%B %d, %Y') }}</span>
-                    </div>
-                    
-                    <div class="receipt-info-item">
-                        <span>End Date:</span>
-                        <span>{{ trip.end_date.strftime('%B %d, %Y') }}</span>
-                    </div>
-                    
-                    <div class="receipt-info-item">
-                        <span>Duration:</span>
-                        <span>{{ (trip.end_date - trip.start_date).days }} days</span>
-                    </div>
-                    
-                    <div class="receipt-info-item">
-                        <span>Travelers:</span>
-                        <span>{{ trip.num_travelers }}</span>
-                    </div>
-                    
-                    <div class="receipt-info-item">
-                        <span>Accommodation:</span>
-                        <span>{{ trip.accommodation_type|capitalize }}</span>
-                    </div>
-                    
-                    <div class="receipt-info-item">
-                        <span>Transportation:</span>
-                        <span>{{ trip.transportation|replace('_', ' ')|capitalize }}</span>
-                    </div>
-                    
-                    {% if trip.guide_required %}
-                    <div class="receipt-info-item">
-                        <span>Guide:</span>
-                        <span>Included</span>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-            
-            <div class="col-md-6">
-                <div class="receipt-info">
-                    <h3 class="h5 mb-3">Payment Information</h3>
-                    
-                    <div class="receipt-info-item">
-                        <span>Payment ID:</span>
-                        <span>{{ trip.payment_id }}</span>
-                    </div>
-                    
-                    <div class="receipt-info-item">
-                        <span>Payment Date:</span>
-                        <span>{{ trip.payment_date.strftime('%B %d, %Y') if trip.payment_date else trip.created_at.strftime('%B %d, %Y') }}</span>
-                    </div>
-                    
-                    <div class="receipt-info-item">
-                        <span>Payment Method:</span>
-                        <span>{{ trip.payment_method|capitalize if trip.payment_method else 'Credit Card' }}</span>
-                    </div>
-                    
-                    <div class="receipt-info-item">
-                        <span>Status:</span>
-                        <span class="text-success">{{ trip.payment_status|capitalize }}</span>
-                    </div>
-                </div>
-                
-                <div class="price-breakdown">
-                    <h4 class="h5 mb-3">Price Breakdown</h4>
-                    
-                    <div class="price-breakdown-item">
-                        <span>Base Price:</span>
-                        <span>₹{{ trip.base_price }} × {{ trip.num_travelers }} travelers</span>
-                    </div>
-                    
-                    {% if trip.accommodation_fee > 0 %}
-                    <div class="price-breakdown-item">
-                        <span>Accommodation ({{ trip.accommodation_type|capitalize }}):</span>
-                        <span>₹{{ trip.accommodation_fee|round(2) }}</span>
-                    </div>
-                    {% endif %}
-                    
-                    {% if trip.transportation_fee > 0 %}
-                    <div class="price-breakdown-item">
-                        <span>Transportation ({{ trip.transportation|replace('_', ' ')|capitalize }}):</span>
-                        <span>₹{{ trip.transportation_fee|round(2) }}</span>
-                    </div>
-                    {% endif %}
-                    
-                    {% if trip.guide_fee > 0 %}
-                    <div class="price-breakdown-item">
-                        <span>Guide Service:</span>
-                        <span>₹{{ trip.guide_fee|round(2) }}</span>
-                    </div>
-                    {% endif %}
-                    
-                    <div class="price-breakdown-item">
-                        <span>Tax (8.5%):</span>
-                        <span>₹{{ trip.tax_amount|round(2) }}</span>
-                    </div>
-                    
-                    {% if trip.discount_amount > 0 %}
-                    <div class="price-breakdown-item">
-                        <span>Discount (Group of {{ trip.num_travelers }}):</span>
-                        <span>-₹{{ trip.discount_amount|round(2) }}</span>
-                    </div>
-                    {% endif %}
-                    
-                    <div class="price-breakdown-total">
-                        <span>Total Amount:</span>
-                        <span>₹{{ trip.total_price }}</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="receipt-actions">
-            <a href="{{ url_for('main.dashboard') }}" class="btn btn-outline-primary">
-                <i class="fas fa-home me-1"></i> Go to Dashboard
-            </a>
-            <button onclick="window.print()" class="btn btn-outline-secondary">
-                <i class="fas fa-print me-1"></i> Print Receipt
-            </button>
-        </div>
-        
-        <div class="receipt-footer">
-            <p>If you have any questions, please contact our support team.</p>
-        </div>
-    </div>
-</div>
+  <div class="receipt">
+      <div class="receipt-header">
+          <h1>Payment Receipt</h1>
+          <p>Thank you for your booking!</p>
+      </div>
+      
+      <div class="receipt-body">
+          <div class="text-center mb-4">
+              <span class="confirmation-badge">
+                  <i class="fas fa-check-circle me-1"></i> Payment Confirmed
+              </span>
+              <h2 class="receipt-title">Your Sacred Journey is Confirmed</h2>
+              <p>Confirmation Code: <strong>{{ trip.confirmation_code }}</strong></p>
+              <p>Payment ID: <strong>{{ trip.payment_id }}</strong></p>
+          </div>
+          
+          <div class="row">
+              <div class="col-md-6">
+                  <div class="receipt-info">
+                      <h3 class="h5 mb-3">Trip Details</h3>
+                      
+                      <div class="receipt-info-item">
+                          <span>Pilgrimage:</span>
+                          <span>{{ trip.pilgrimage.name }}</span>
+                      </div>
+                      
+                      <div class="receipt-info-item">
+                          <span>Location:</span>
+                          <span>{{ trip.pilgrimage.location }}</span>
+                      </div>
+                      
+                      <div class="receipt-info-item">
+                          <span>Start Date:</span>
+                          <span>{{ trip.start_date.strftime('%B %d, %Y') }}</span>
+                      </div>
+                      
+                      <div class="receipt-info-item">
+                          <span>End Date:</span>
+                          <span>{{ trip.end_date.strftime('%B %d, %Y') }}</span>
+                      </div>
+                      
+                      <div class="receipt-info-item">
+                          <span>Duration:</span>
+                          <span>{{ (trip.end_date - trip.start_date).days }} days</span>
+                      </div>
+                      
+                      <div class="receipt-info-item">
+                          <span>Travelers:</span>
+                          <span>{{ trip.num_travelers }}</span>
+                      </div>
+                      
+                      <div class="receipt-info-item">
+                          <span>Accommodation:</span>
+                          <span>{{ trip.accommodation_type|capitalize }}</span>
+                      </div>
+                      
+                      <div class="receipt-info-item">
+                          <span>Transportation:</span>
+                          <span>{{ trip.transportation|replace('_', ' ')|capitalize }}</span>
+                      </div>
+                      
+                      {% if trip.guide_required %}
+                      <div class="receipt-info-item">
+                          <span>Guide:</span>
+                          <span>Included</span>
+                      </div>
+                      {% endif %}
+                  </div>
+              </div>
+              
+              <div class="col-md-6">
+                  <div class="receipt-info">
+                      <h3 class="h5 mb-3">Payment Information</h3>
+                      
+                      <div class="receipt-info-item">
+                          <span>Payment ID:</span>
+                          <span>{{ trip.payment_id }}</span>
+                      </div>
+                      
+                      <div class="receipt-info-item">
+                          <span>Payment Date:</span>
+                          <span>{{ trip.payment_date.strftime('%B %d, %Y') if trip.payment_date else trip.created_at.strftime('%B %d, %Y') }}</span>
+                      </div>
+                      
+                      <div class="receipt-info-item">
+                          <span>Payment Method:</span>
+                          <span>{{ trip.payment_method|capitalize if trip.payment_method else 'Credit Card' }}</span>
+                      </div>
+                      
+                      <div class="receipt-info-item">
+                          <span>Status:</span>
+                          <span class="text-success">{{ trip.payment_status|capitalize }}</span>
+                      </div>
+                  </div>
+                  
+                  <div class="price-breakdown">
+                      <h4 class="h5 mb-3">Price Breakdown</h4>
+                      
+                      <div class="price-breakdown-item">
+                          <span>Base Price:</span>
+                          <span>₹{{ trip.base_price }} × {{ trip.num_travelers }} travelers</span>
+                      </div>
+                      
+                      {% if trip.accommodation_fee > 0 %}
+                      <div class="price-breakdown-item">
+                          <span>Accommodation ({{ trip.accommodation_type|capitalize }}):</span>
+                          <span>₹{{ trip.accommodation_fee|round(2) }}</span>
+                      </div>
+                      {% endif %}
+                      
+                      {% if trip.transportation_fee > 0 %}
+                      <div class="price-breakdown-item">
+                          <span>Transportation ({{ trip.transportation|replace('_', ' ')|capitalize }}):</span>
+                          <span>₹{{ trip.transportation_fee|round(2) }}</span>
+                      </div>
+                      {% endif %}
+                      
+                      {% if trip.guide_fee > 0 %}
+                      <div class="price-breakdown-item">
+                          <span>Guide Service:</span>
+                          <span>₹{{ trip.guide_fee|round(2) }}</span>
+                      </div>
+                      {% endif %}
+                      
+                      <div class="price-breakdown-item">
+                          <span>Tax (8.5%):</span>
+                          <span>₹{{ trip.tax_amount|round(2) }}</span>
+                      </div>
+                      
+                      {% if trip.discount_amount > 0 %}
+                      <div class="price-breakdown-item">
+                          <span>Discount (Group of {{ trip.num_travelers }}):</span>
+                          <span>-₹{{ trip.discount_amount|round(2) }}</span>
+                      </div>
+                      {% endif %}
+                      
+                      <div class="price-breakdown-total">
+                          <span>Total Amount:</span>
+                          <span>₹{{ trip.total_price }}</span>
+                      </div>
+                  </div>
+              </div>
+          </div>
+          
+          <div class="receipt-actions">
+              <a href="{{ url_for('main.dashboard') }}" class="btn btn-outline-primary">
+                  <i class="fas fa-home me-1"></i> Go to Dashboard
+              </a>
+              <a href="{{ url_for('payment.receipt_pdf', trip_id=trip.id) }}" class="btn btn-outline-secondary">
+                  <i class="fas fa-download me-1"></i> Download PDF
+              </a>
+              <button onclick="window.print()" class="btn btn-outline-secondary">
+                  <i class="fas fa-print me-1"></i> Print Receipt
+              </button>
+          </div>
+          
+          <div class="receipt-footer">
+              <p>A confirmation email with your receipt has been sent to your registered email address.</p>
+              <p>If you have any questions, please contact our support team.</p>
+          </div>
+      </div>
+  </div>
 </div>
 {% endblock %}
 

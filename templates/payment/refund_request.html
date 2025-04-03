@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Request a Refund</h2>
+    <p>If you need a refund for your trip, please provide the details below.</p>
+    
+    <form method="POST" action="{{ url_for('payment.refund_request', trip_id=trip.id) }}">
+        {{ form.hidden_tag() }}
+        
+        <div class="mb-3">
+            <label for="trip" class="form-label">Trip</label>
+            <input type="text" class="form-control" value="{{ trip.pilgrimage.name }}" disabled>
+        </div>
+        
+        <div class="mb-3">
+            <label for="reason" class="form-label">Reason for Refund</label>
+            <textarea class="form-control" id="reason" name="reason" rows="4" required></textarea>
+        </div>
+        
+        <div class="mb-3">
+            <label for="refund_method" class="form-label">Refund Method</label>
+            <select class="form-select" id="refund_method" name="refund_method" required>
+                <option value="original">Refund to Original Payment Method</option>
+                <option value="wallet">Refund to Account Wallet</option>
+            </select>
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Submit Request</button>
+    </form>
+</div>
+{% endblock %}

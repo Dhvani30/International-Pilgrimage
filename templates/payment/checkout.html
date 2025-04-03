@@ -224,7 +224,6 @@
     border-top-color: #444;
 }
 </style>
-<meta name="csrf-token" content="{{ csrf_token() }}">
 {% endblock %}
 
 {% block content %}
@@ -487,156 +486,157 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-  // Test account functionality
-  const testAccountSelect = document.getElementById('testAccountSelect');
-  const testAccountDetails = document.getElementById('testAccountDetails');
-  const testCardNumber = document.getElementById('testCardNumber');
-  const testExpiry = document.getElementById('testExpiry');
-  const testCVV = document.getElementById('testCVV');
-  const testName = document.getElementById('testName');
-  const testBalance = document.getElementById('testBalance');
-  
-  // Test account data
-  const testAccounts = {
-      "test@example.com": {
-          "card_number": "4111111111111111",
-          "expiry": "12/25",
-          "cvv": "123",
-          "name": "Test User",
-          "balance": 50000.00
-      },
-      "demo@example.com": {
-          "card_number": "5555555555554444",
-          "expiry": "10/26",
-          "cvv": "321",
-          "name": "Demo User",
-          "balance": 100000.00
-      }
-  };
-  
-  // Handle test account selection
-  testAccountSelect.addEventListener('change', function() {
-      const selectedAccount = this.value;
-      
-      if (selectedAccount && testAccounts[selectedAccount]) {
-          const account = testAccounts[selectedAccount];
-          
-          // Fill in test account details
-          testCardNumber.textContent = account.card_number;
-          testExpiry.textContent = account.expiry;
-          testCVV.textContent = account.cvv;
-          testName.textContent = account.name;
-          testBalance.textContent = account.balance.toFixed(2);
-          
-          // Show test account details
-          testAccountDetails.style.display = 'block';
-          
-          // Auto-fill the payment form
-          document.getElementById('card-holder-name').value = account.name;
-          document.getElementById('card-number').value = account.card_number;
-          document.getElementById('card-expiry').value = account.expiry;
-          document.getElementById('card-cvc').value = account.cvv;
-      } else {
-          testAccountDetails.style.display = 'none';
-          
-          // Clear the payment form
-          document.getElementById('card-holder-name').value = '';
-          document.getElementById('card-number').value = '';
-          document.getElementById('card-expiry').value = '';
-          document.getElementById('card-cvc').value = '';
-      }
-  });
-  
-  // Payment method selection
-  const paymentMethods = document.querySelectorAll('.payment-method');
-  const paymentMethodContents = document.querySelectorAll('.payment-method-content');
-  const submitButton = document.getElementById('submit-payment');
-  const buttonText = document.getElementById('button-text');
-  const spinner = document.getElementById('spinner');
-  const errorElement = document.getElementById('card-errors');
-  
-  // Set active payment method
-  paymentMethods.forEach(method => {
-      method.addEventListener('click', function() {
-          // Remove active class from all methods
-          paymentMethods.forEach(m => m.classList.remove('active'));
-          paymentMethodContents.forEach(c => c.classList.remove('active'));
-          
-          // Add active class to selected method
-          this.classList.add('active');
-          const methodId = this.getAttribute('data-method');
-          document.getElementById(`${methodId}-method`).classList.add('active');
-          
-          // Update button text based on method
-          updateButtonText(methodId);
-      });
-  });
-  
-  function updateButtonText(methodId) {
-      switch(methodId) {
-          case 'upi':
-              buttonText.textContent = 'Pay with UPI';
-              break;
-          case 'netbanking':
-              buttonText.textContent = 'Pay with Net Banking';
-              break;
-          case 'wallet':
-              buttonText.textContent = 'Pay with Wallet';
-              break;
-          default:
-              buttonText.textContent = 'Pay ₹{{ trip.total_price }}';
-      }
-  }
-  
-  // Handle payment submission - SIMPLIFIED VERSION
-  submitButton.addEventListener('click', function(event) {
-      event.preventDefault();
-      
-      // Disable the submit button to prevent repeated clicks
-      submitButton.disabled = true;
-      buttonText.textContent = 'Processing...';
-      spinner.classList.remove('d-none');
-      
-      // Get CSRF token from meta tag
-      const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-      
-      // Send payment to server - simplified
-      fetch('/process-payment/{{ trip.id }}', {
-          method: 'POST',
-          headers: {
-              'Content-Type': 'application/json',
-              'X-CSRFToken': csrfToken
-          },
-          body: JSON.stringify({
-              method: 'card'
-          })
-      })
-      .then(response => {
-          if (!response.ok) {
-              throw new Error('Network response was not ok');
-          }
-          return response.json();
-      })
-      .then(data => {
-          if (data.success) {
-              // Redirect to receipt page
-              window.location.href = data.redirect;
-          } else {
-              // Show error
-              errorElement.textContent = data.error || 'Payment failed. Please try again.';
-              submitButton.disabled = false;
-              buttonText.textContent = 'Pay ₹{{ trip.total_price }}';
-              spinner.classList.add('d-none');
-          }
-      })
-      .catch(error => {
-          console.error('Error:', error);
-          errorElement.textContent = 'An unexpected error occurred. Please try again.';
-          submitButton.disabled = false;
-          buttonText.textContent = 'Pay ₹{{ trip.total_price }}';
-          spinner.classList.add('d-none');
-      });
-  });
+    // Test account functionality
+    const testAccountSelect = document.getElementById('testAccountSelect');
+    const testAccountDetails = document.getElementById('testAccountDetails');
+    const testCardNumber = document.getElementById('testCardNumber');
+    const testExpiry = document.getElementById('testExpiry');
+    const testCVV = document.getElementById('testCVV');
+    const testName = document.getElementById('testName');
+    const testBalance = document.getElementById('testBalance');
+    
+    // Test account data
+    const testAccounts = {
+        "test@example.com": {
+            "card_number": "4111111111111111",
+            "expiry": "12/25",
+            "cvv": "123",
+            "name": "Test User",
+            "balance": 50000.00
+        },
+        "demo@example.com": {
+            "card_number": "5555555555554444",
+            "expiry": "10/26",
+            "cvv": "321",
+            "name": "Demo User",
+            "balance": 100000.00
+        }
+    };
+    
+    // Handle test account selection
+    testAccountSelect.addEventListener('change', function() {
+        const selectedAccount = this.value;
+        
+        if (selectedAccount && testAccounts[selectedAccount]) {
+            const account = testAccounts[selectedAccount];
+            
+            // Fill in test account details
+            testCardNumber.textContent = account.card_number;
+            testExpiry.textContent = account.expiry;
+            testCVV.textContent = account.cvv;
+            testName.textContent = account.name;
+            testBalance.textContent = account.balance.toFixed(2);
+            
+            // Show test account details
+            testAccountDetails.style.display = 'block';
+            
+            // Auto-fill the payment form
+            document.getElementById('card-holder-name').value = account.name;
+            document.getElementById('card-number').value = account.card_number;
+            document.getElementById('card-expiry').value = account.expiry;
+            document.getElementById('card-cvc').value = account.cvv;
+        } else {
+            testAccountDetails.style.display = 'none';
+            
+            // Clear the payment form
+            document.getElementById('card-holder-name').value = '';
+            document.getElementById('card-number').value = '';
+            document.getElementById('card-expiry').value = '';
+            document.getElementById('card-cvc').value = '';
+        }
+    });
+    
+    // Payment method selection
+    const paymentMethods = document.querySelectorAll('.payment-method');
+    const paymentMethodContents = document.querySelectorAll('.payment-method-content');
+    const submitButton = document.getElementById('submit-payment');
+    const buttonText = document.getElementById('button-text');
+    const spinner = document.getElementById('spinner');
+    const errorElement = document.getElementById('card-errors');
+    
+    // Set active payment method
+    paymentMethods.forEach(method => {
+        method.addEventListener('click', function() {
+            // Remove active class from all methods
+            paymentMethods.forEach(m => m.classList.remove('active'));
+            paymentMethodContents.forEach(c => c.classList.remove('active'));
+            
+            // Add active class to selected method
+            this.classList.add('active');
+            const methodId = this.getAttribute('data-method');
+            document.getElementById(`${methodId}-method`).classList.add('active');
+            
+            // Update button text based on method
+            updateButtonText(methodId);
+        });
+    });
+    
+    function updateButtonText(methodId) {
+        switch(methodId) {
+            case 'upi':
+                buttonText.textContent = 'Pay with UPI';
+                break;
+            case 'netbanking':
+                buttonText.textContent = 'Pay with Net Banking';
+                break;
+            case 'wallet':
+                buttonText.textContent = 'Pay with Wallet';
+                break;
+            default:
+                buttonText.textContent = 'Pay ₹{{ trip.total_price }}';
+        }
+    }
+    
+    // Handle payment submission - SIMPLIFIED VERSION
+    submitButton.addEventListener('click', function(event) {
+        event.preventDefault();
+        
+        // Disable the submit button to prevent repeated clicks
+        submitButton.disabled = true;
+        buttonText.textContent = 'Processing...';
+        spinner.classList.remove('d-none');
+        
+        // Directly process payment without validation
+        processPayment();
+    });
+    
+    function processPayment() {
+        // Send payment to server - simplified
+        fetch('/process-payment/{{ trip.id }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                method: 'card'
+            })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                // Redirect to receipt page
+                window.location.href = data.redirect;
+            } else {
+                // Show error
+                errorElement.textContent = data.error || 'Payment failed. Please try again.';
+                submitButton.disabled = false;
+                buttonText.textContent = 'Pay ₹{{ trip.total_price }}';
+                spinner.classList.add('d-none');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            errorElement.textContent = 'An unexpected error occurred. Please try again.';
+            submitButton.disabled = false;
+            buttonText.textContent = 'Pay ₹{{ trip.total_price }}';
+            spinner.classList.add('d-none');
+        });
+    }
 });
 </script>
 {% endblock %}

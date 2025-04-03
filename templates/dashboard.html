@@ -104,6 +104,9 @@
           <div class="trip-actions">
             <a href="{{ url_for('main.trip_details', trip_id=plan.id) }}" class="btn btn-sm btn-outline-primary">View Details</a>
             {% if plan.payment_status == 'paid' %}
+              <a href="{{ url_for('trip_planner.planner', trip_id=plan.id) }}" class="btn btn-sm btn-outline-primary">
+                  <i class="fas fa-map"></i> Itinerary
+              </a>
               <a href="{{ url_for('payment.receipt', trip_id=plan.id) }}" class="btn btn-sm btn-success">View Receipt</a>
               {% if plan.start_date > now and plan.payment_status != 'refund_pending' %}
                 <button class="btn btn-sm btn-warning request-refund-btn" data-trip-id="{{ plan.id }}" data-bs-toggle="modal" data-bs-target="#refundModal">Request Refund</button>

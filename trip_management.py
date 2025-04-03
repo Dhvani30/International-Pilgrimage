@@ -69,7 +69,7 @@ def cancel_booking(booking_id):
         db.session.rollback()
         return jsonify({'success': False, 'error': str(e)}), 500
 
-@trip_bp.route('/payment/refund-request/<int:trip_id>', methods=['POST'])
+@trip_bp.route('/payment/refund_request/<int:trip_id>', methods=['POST'])
 @login_required
 def refund_request(trip_id):
     """Request a refund for a paid trip"""

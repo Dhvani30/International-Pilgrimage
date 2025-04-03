@@ -1,0 +1,284 @@
+{% extends "base.html" %}
+
+{% block title %}Print Itinerary - {{ trip.pilgrimage.name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    @media print {
+        body {
+            font-size: 12pt;
+        }
+        
+        .no-print {
+            display: none !important;
+        }
+        
+        .print-container {
+            width: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .page-break {
+            page-break-after: always;
+        }
+    }
+    
+    .print-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .print-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    
+    .print-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 24pt;
+        margin-bottom: 10px;
+    }
+    
+    .print-subtitle {
+        font-size: 14pt;
+        color: #6c757d;
+        margin-bottom: 5px;
+    }
+    
+    .trip-overview {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-bottom: 30px;
+        border: 1px solid #dee2e6;
+        border-radius: 10px;
+        padding: 15px;
+    }
+    
+    .overview-item {
+        flex: 1;
+        min-width: 150px;
+    }
+    
+    .overview-item h4 {
+        font-size: 10pt;
+        color: #6c757d;
+        margin-bottom: 5px;
+    }
+    
+    .overview-item p {
+        font-size: 12pt;
+        font-weight: 600;
+        margin: 0;
+    }
+    
+    .day-section {
+        margin-bottom: 40px;
+    }
+    
+    .day-header {
+        border-bottom: 2px solid #1a233e;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+    }
+    
+    .day-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 18pt;
+        margin: 0;
+    }
+    
+    .day-date {
+        font-size: 12pt;
+        color: #6c757d;
+    }
+    
+    .timeline {
+        position: relative;
+        margin: 30px 0;
+    }
+    
+    .timeline::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 70px;
+        width: 2px;
+        background-color: #dee2e6;
+    }
+    
+    .timeline-item {
+        position: relative;
+        padding-left: 100px;
+        margin-bottom: 30px;
+    }
+    
+    .timeline-time {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 60px;
+        text-align: right;
+        font-weight: 600;
+        color: #1a233e;
+    }
+    
+    .timeline-content {
+        border: 1px solid #dee2e6;
+        border-radius: 10px;
+        padding: 15px;
+    }
+    
+    .timeline-content h4 {
+        margin-top: 0;
+        margin-bottom: 10px;
+    }
+    
+    .timeline-content p {
+        margin-bottom: 10px;
+        color: #6c757d;
+    }
+    
+    .info-section {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-top: 20px;
+    }
+    
+    .info-item {
+        flex: 1;
+        min-width: 200px;
+        border: 1px solid #dee2e6;
+        border-radius: 10px;
+        padding: 15px;
+    }
+    
+    .info-title {
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+    
+    .print-footer {
+        text-align: center;
+        margin-top: 50px;
+        font-size: 10pt;
+        color: #6c757d;
+        border-top: 1px solid #dee2e6;
+        padding-top: 20px;
+    }
+    
+    .print-actions {
+        text-align: center;
+        margin: 30px 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="print-container">
+    <div class="print-actions no-print">
+        <button class="btn btn-primary" onclick="window.print()">
+            <i class="fas fa-print me-2"></i> Print Itinerary
+        </button>
+        <a href="{{ url_for('trip_planner.planner', trip_id=trip.id) }}" class="btn btn-outline-secondary ms-2">
+            <i class="fas fa-arrow-left me-2"></i> Back to Planner
+        </a>
+    </div>
+    
+    <div class="print-header">
+        <h1 class="print-title">{{ trip.pilgrimage.name }}</h1>
+        <p class="print-subtitle">Travel Itinerary</p>
+        <p>{{ trip.start_date.strftime('%B %d') }} - {{ trip.end_date.strftime('%B %d, %Y') }} ({{ (trip.end_date - trip.start_date).days + 1 }} days)</p>
+    </div>
+    
+    <div class="trip-overview">
+        <div class="overview-item">
+            <h4>Confirmation Code</h4>
+            <p>{{ trip.confirmation_code or 'Pending' }}</p>
+        </div>
+        <div class="overview-item">
+            <h4>Travelers</h4>
+            <p>{{ trip.num_travelers }}</p>
+        </div>
+        <div class="overview-item">
+            <h4>Accommodation</h4>
+            <p>{{ trip.accommodation_type|capitalize }}</p>
+        </div>
+        <div class="overview-item">
+            <h4>Transportation</h4>
+            <p>{{ trip.transportation|replace('_', ' ')|capitalize }}</p>
+        </div>
+    </div>
+    
+    {% for plan in daily_plans %}
+    <div class="day-section {% if not loop.last %}page-break{% endif %}">
+        <div class="day-header">
+            <h2 class="day-title">Day {{ plan.day_number }}: {{ plan.title }}</h2>
+            <p class="day-date">{{ plan.date.strftime('%A, %B %d, %Y') }}</p>
+        </div>
+        
+        <p>{{ plan.description }}</p>
+        
+        <!-- Timeline of activities -->
+        <div class="timeline">
+            {% for attraction in plan.attractions.order_by(DailyPlanAttraction.start_time).all() %}
+            <div class="timeline-item">
+                <div class="timeline-time">{{ attraction.start_time }}</div>
+                <div class="timeline-content">
+                    <h4>{{ attraction.attraction.name }}</h4>
+                    <p>{{ attraction.attraction.description }}</p>
+                    <div>
+                        <strong>Category:</strong> {{ attraction.attraction.category|capitalize }}<br>
+                        <strong>Duration:</strong> {{ attraction.attraction.visit_duration }} minutes<br>
+                        {% if attraction.attraction.entrance_fee > 0 %}
+                        <strong>Entrance Fee:</strong> ₹{{ attraction.attraction.entrance_fee }}<br>
+                        {% endif %}
+                        {% if attraction.attraction.address %}
+                        <strong>Address:</strong> {{ attraction.attraction.address }}<br>
+                        {% endif %}
+                        {% if attraction.attraction.opening_hours %}
+                        <strong>Opening Hours:</strong> {{ attraction.attraction.opening_hours }}<br>
+                        {% endif %}
+                    </div>
+                    {% if attraction.notes %}
+                    <div style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed #dee2e6;">
+                        <strong>Notes:</strong> {{ attraction.notes }}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% else %}
+            <p class="text-center" style="color: #6c757d;">No activities planned for this day.</p>
+            {% endfor %}
+        </div>
+        
+        <!-- Additional Information -->
+        <div class="info-section">
+            <div class="info-item">
+                <div class="info-title">Accommodation</div>
+                <div>{{ plan.accommodation or trip.accommodation_type|capitalize }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-title">Transportation</div>
+                <div>{{ plan.transportation or trip.transportation|replace('_', ' ')|capitalize }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-title">Meals</div>
+                <div>{{ plan.meal_plan or 'Breakfast, Lunch, Dinner' }}</div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    
+    <div class="print-footer">
+        <p>Sacred Journeys Explorer | {{ trip.confirmation_code or 'Booking Pending' }}</p>
+        <p>For assistance, contact support@sacredjourneys.com | +91 1234567890</p>
+        <p>Printed on {{ now().strftime('%B %d, %Y') }}</p>
+    </div>
+</div>
+{% endblock %}
+

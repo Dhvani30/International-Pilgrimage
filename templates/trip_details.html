@@ -124,6 +124,9 @@
                     
                     <div class="actions mt-4">
                         <a href="{{ url_for('main.pilgrimage', id=trip.pilgrimage.id) }}" class="btn btn-outline-primary d-block mb-2">View Pilgrimage</a>
+                        <a href="{{ url_for('trip_planner.planner', trip_id=trip.id) }}" class="btn btn-primary d-block mb-2">
+                            <i class="fas fa-map me-1"></i> Plan Detailed Itinerary
+                        </a>
                         <a href="{{ url_for('main.dashboard') }}" class="btn btn-outline-secondary d-block">Back to Dashboard</a>
                     </div>
                 </div>

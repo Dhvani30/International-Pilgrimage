@@ -1,0 +1,233 @@
+{% extends "base.html" %}
+
+{% block title %}Special Deals - Sacred Journeys{% endblock %}
+
+{% block extra_css %}
+<style>
+    .deals-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    
+    .deals-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+    
+    .deals-title {
+        font-family: 'Playfair Display', serif;
+        margin-bottom: 10px;
+    }
+    
+    .deals-subtitle {
+        color: #6c757d;
+        max-width: 700px;
+        margin: 0 auto;
+    }
+    
+    .dark .deals-subtitle {
+        color: #aaa;
+    }
+    
+    .deal-card {
+        background-color: #fff;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        margin-bottom: 30px;
+        transition: all 0.3s ease;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        border-left: 5px solid #ffc107;
+    }
+    
+    .dark .deal-card {
+        background-color: #1e1e1e;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+    
+    .deal-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+    
+    .deal-image {
+        height: 200px;
+        overflow: hidden;
+    }
+    
+    .deal-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+    
+    .deal-card:hover .deal-image img {
+        transform: scale(1.05);
+    }
+    
+    .deal-content {
+        padding: 20px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .deal-discount {
+        display: inline-block;
+        background-color: #dc3545;
+        color: white;
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin-bottom: 15px;
+    }
+    
+    .deal-title {
+        font-size: 1.5rem;
+        margin-bottom: 10px;
+        color: #1a233e;
+    }
+    
+    .dark .deal-title {
+        color: #fff;
+    }
+    
+    .deal-description {
+        color: #6c757d;
+        margin-bottom: 20px;
+        flex: 1;
+    }
+    
+    .dark .deal-description {
+        color: #aaa;
+    }
+    
+    .deal-meta {
+        margin-bottom: 20px;
+        font-size: 0.9rem;
+        color: #6c757d;
+    }
+    
+    .dark .deal-meta {
+        color: #aaa;
+    }
+    
+    .deal-meta div {
+        margin-bottom: 5px;
+    }
+    
+    .deal-meta i {
+        width: 20px;
+        text-align: center;
+        margin-right: 5px;
+    }
+    
+    .deal-code {
+        display: inline-block;
+        background-color: #f8f9fa;
+        border: 1px dashed #ced4da;
+        padding: 8px 15px;
+        border-radius: 5px;
+        font-family: monospace;
+        font-size: 1.1rem;
+        margin-bottom: 15px;
+    }
+    
+    .dark .deal-code {
+        background-color: #2a2a2a;
+        border-color: #444;
+    }
+    
+    .deal-actions {
+        margin-top: auto;
+    }
+    
+    .no-deals {
+        text-align: center;
+        padding: 50px 0;
+    }
+    
+    .no-deals i {
+        font-size: 3rem;
+        color: #6c757d;
+        margin-bottom: 20px;
+    }
+    
+    .dark .no-deals i {
+        color: #aaa;
+    }
+    
+    .no-deals p {
+        color: #6c757d;
+        font-size: 1.2rem;
+        margin-bottom: 20px;
+    }
+    
+    .dark .no-deals p {
+        color: #aaa;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="deals-container">
+    <div class="deals-header">
+        <h1 class="deals-title">Special Deals & Offers</h1>
+        <p class="deals-subtitle">Take advantage of our limited-time offers and save on your sacred journey. Apply these deals when planning your trip to get exclusive discounts.</p>
+    </div>
+    
+    {% if deals %}
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        {% for deal in deals %}
+        <div class="col">
+            <div class="deal-card">
+                <div class="deal-image">
+                    <img src="{{ deal.image_url or url_for('static', filename='images/placeholder.jpg') }}" alt="{{ deal.title }}">
+                </div>
+                <div class="deal-content">
+                    <span class="deal-discount">{{ deal.discount_percentage }}% OFF</span>
+                    <h2 class="deal-title">{{ deal.title }}</h2>
+                    <p class="deal-description">{{ deal.description }}</p>
+                    
+                    <div class="deal-meta">
+                        <div><i class="fas fa-calendar-alt"></i> Valid until: {{ deal.valid_to.strftime('%B %d, %Y') }}</div>
+                        {% if deal.pilgrimage_id %}
+                        <div><i class="fas fa-map-marker-alt"></i> Specific to: {{ deal.pilgrimage.name }}</div>
+                        {% else %}
+                        <div><i class="fas fa-globe"></i> Valid for all pilgrimages</div>
+                        {% endif %}
+                        {% if deal.min_travelers > 1 %}
+                        <div><i class="fas fa-users"></i> Minimum {{ deal.min_travelers }} travelers</div>
+                        {% endif %}
+                        {% if deal.min_days > 1 %}
+                        <div><i class="fas fa-clock"></i> Minimum {{ deal.min_days }} days</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="deal-code">{{ deal.code }}</div>
+                    
+                    <div class="deal-actions">
+                        <a href="{{ url_for('main.plan_trip') }}" class="btn btn-primary">
+                            <i class="fas fa-route me-2"></i> Plan a Trip
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="no-deals">
+        <i class="fas fa-tag"></i>
+        <p>No active deals available at the moment.</p>
+        <p>Check back soon for new offers!</p>
+        <a href="{{ url_for('main.pilgrimages') }}" class="btn btn-primary">Explore Pilgrimages</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+

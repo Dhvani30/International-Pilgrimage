@@ -1,0 +1,817 @@
+{% extends "base.html" %}
+
+{% block title %}Trip Planner - {{ trip.pilgrimage.name }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==" crossorigin=""/>
+<style>
+    .planner-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    
+    .planner-header {
+        background-color: #f8f9fa;
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 30px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+    
+    .dark .planner-header {
+        background-color: #2a2a2a;
+    }
+    
+    .planner-title {
+        font-family: 'Playfair Display', serif;
+        margin-bottom: 10px;
+    }
+    
+    .planner-subtitle {
+        color: #6c757d;
+        margin-bottom: 20px;
+    }
+    
+    .dark .planner-subtitle {
+        color: #aaa;
+    }
+    
+    .trip-overview {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .overview-item {
+        flex: 1;
+        min-width: 150px;
+        background-color: #fff;
+        border-radius: 10px;
+        padding: 15px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+    
+    .dark .overview-item {
+        background-color: #1e1e1e;
+    }
+    
+    .overview-item h4 {
+        font-size: 0.9rem;
+        color: #6c757d;
+        margin-bottom: 5px;
+    }
+    
+    .dark .overview-item h4 {
+        color: #aaa;
+    }
+    
+    .overview-item p {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin: 0;
+    }
+    
+    .day-tabs {
+        display: flex;
+        overflow-x: auto;
+        gap: 10px;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+    }
+    
+    .day-tab {
+        flex: 0 0 auto;
+        background-color: #fff;
+        border: 1px solid #dee2e6;
+        border-radius: 10px;
+        padding: 10px 20px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .dark .day-tab {
+        background-color: #1e1e1e;
+        border-color: #444;
+    }
+    
+    .day-tab.active {
+        background-color: #1a233e;
+        color: white;
+        border-color: #1a233e;
+    }
+    
+    .dark .day-tab.active {
+        background-color: var(--secondary-color);
+        color: #1a233e;
+        border-color: var(--secondary-color);
+    }
+    
+    .day-tab:hover:not(.active) {
+        background-color: #f8f9fa;
+        border-color: #adb5bd;
+    }
+    
+    .dark .day-tab:hover:not(.active) {
+        background-color: #2a2a2a;
+        border-color: #666;
+    }
+    
+    .day-content {
+        display: none;
+    }
+    
+    .day-content.active {
+        display: block;
+        animation: fadeIn 0.3s ease-out;
+    }
+    
+    .day-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    
+    .day-title {
+        font-family: 'Playfair Display', serif;
+        margin: 0;
+    }
+    
+    .timeline {
+        position: relative;
+        margin: 30px 0;
+    }
+    
+    .timeline::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 70px;
+        width: 2px;
+        background-color: #dee2e6;
+    }
+    
+    .dark .timeline::before {
+        background-color: #444;
+    }
+    
+    .timeline-item {
+        position: relative;
+        padding-left: 100px;
+        margin-bottom: 30px;
+    }
+    
+    .timeline-time {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 60px;
+        text-align: right;
+        font-weight: 600;
+        color: #1a233e;
+    }
+    
+    .dark .timeline-time {
+        color: var(--secondary-color);
+    }
+    
+    .timeline-content {
+        background-color: #fff;
+        border-radius: 10px;
+        padding: 15px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+    
+    .dark .timeline-content {
+        background-color: #1e1e1e;
+    }
+    
+    .timeline-content h4 {
+        margin-top: 0;
+        margin-bottom: 10px;
+    }
+    
+    .timeline-content p {
+        margin-bottom: 10px;
+        color: #6c757d;
+    }
+    
+    .dark .timeline-content p {
+        color: #aaa;
+    }
+    
+    .timeline-content .badge {
+        margin-right: 5px;
+    }
+    
+    .attraction-card {
+        display: flex;
+        background-color: #fff;
+        border-radius: 10px;
+        overflow: hidden;
+        margin-bottom: 15px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+    }
+    
+    .dark .attraction-card {
+        background-color: #1e1e1e;
+    }
+    
+    .attraction-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .attraction-image {
+        width: 120px;
+        height: 120px;
+        object-fit: cover;
+    }
+    
+    .attraction-details {
+        flex: 1;
+        padding: 15px;
+    }
+    
+    .attraction-title {
+        font-size: 1.1rem;
+        margin-top: 0;
+        margin-bottom: 5px;
+    }
+    
+    .attraction-category {
+        display: inline-block;
+        background-color: #f8f9fa;
+        color: #6c757d;
+        padding: 3px 8px;
+        border-radius: 15px;
+        font-size: 0.8rem;
+        margin-bottom: 10px;
+    }
+    
+    .dark .attraction-category {
+        background-color: #2a2a2a;
+        color: #aaa;
+    }
+    
+    .attraction-description {
+        font-size: 0.9rem;
+        color: #6c757d;
+        margin-bottom: 10px;
+    }
+    
+    .dark .attraction-description {
+        color: #aaa;
+    }
+    
+    .attraction-meta {
+        display: flex;
+        font-size: 0.85rem;
+        color: #6c757d;
+    }
+    
+    .dark .attraction-meta {
+        color: #aaa;
+    }
+    
+    .attraction-meta div {
+        margin-right: 15px;
+    }
+    
+    .attraction-meta i {
+        margin-right: 5px;
+    }
+    
+    .deals-section {
+        background-color: #fff8e1;
+        border-radius: 15px;
+        padding: 20px;
+        margin-top: 30px;
+        margin-bottom: 30px;
+        border: 1px solid #ffe082;
+    }
+    
+    .dark .deals-section {
+        background-color: #332d00;
+        border-color: #665600;
+    }
+    
+    .deal-card {
+        background-color: #fff;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 15px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        border-left: 4px solid #ffc107;
+    }
+    
+    .dark .deal-card {
+        background-color: #1e1e1e;
+    }
+    
+    .deal-title {
+        font-size: 1.1rem;
+        margin-top: 0;
+        margin-bottom: 5px;
+        color: #1a233e;
+    }
+    
+    .dark .deal-title {
+        color: #fff;
+    }
+    
+    .deal-discount {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #dc3545;
+        margin-bottom: 10px;
+    }
+    
+    .deal-description {
+        font-size: 0.9rem;
+        color: #6c757d;
+        margin-bottom: 10px;
+    }
+    
+    .dark .deal-description {
+        color: #aaa;
+    }
+    
+    .deal-validity {
+        font-size: 0.85rem;
+        color: #6c757d;
+    }
+    
+    .dark .deal-validity {
+        color: #aaa;
+    }
+    
+    .deal-code {
+        display: inline-block;
+        background-color: #f8f9fa;
+        border: 1px dashed #ced4da;
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-family: monospace;
+        margin-right: 10px;
+    }
+    
+    .dark .deal-code {
+        background-color: #2a2a2a;
+        border-color: #444;
+    }
+    
+    .map-container {
+        height: 300px;
+        border-radius: 10px;
+        overflow: hidden;
+        margin-bottom: 30px;
+    }
+    
+    .accommodation-info,
+    .transportation-info,
+    .meal-info {
+        background-color: #fff;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 15px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+    
+    .dark .accommodation-info,
+    .dark .transportation-info,
+    .dark .meal-info {
+        background-color: #1e1e1e;
+    }
+    
+    .info-title {
+        display: flex;
+        align-items: center;
+        font-size: 1.1rem;
+        margin-top: 0;
+        margin-bottom: 10px;
+        color: #1a233e;
+    }
+    
+    .dark .info-title {
+        color: #fff;
+    }
+    
+    .info-title i {
+        margin-right: 10px;
+        color: #6c757d;
+    }
+    
+    .dark .info-title i {
+        color: #aaa;
+    }
+    
+    .info-content {
+        color: #6c757d;
+    }
+    
+    .dark .info-content {
+        color: #aaa;
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 10px;
+        margin-top: 30px;
+    }
+    
+    @media (max-width: 768px) {
+        .timeline::before {
+            left: 40px;
+        }
+        
+        .timeline-item {
+            padding-left: 60px;
+        }
+        
+        .timeline-time {
+            width: 35px;
+            font-size: 0.8rem;
+        }
+        
+        .attraction-card {
+            flex-direction: column;
+        }
+        
+        .attraction-image {
+            width: 100%;
+            height: 150px;
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="planner-container">
+    <div class="planner-header">
+        <h1 class="planner-title">Trip Planner: {{ trip.pilgrimage.name }}</h1>
+        <p class="planner-subtitle">Plan your perfect pilgrimage experience day by day</p>
+        
+        <div class="trip-overview">
+            <div class="overview-item">
+                <h4>Dates</h4>
+                <p>{{ trip.start_date.strftime('%b %d') }} - {{ trip.end_date.strftime('%b %d, %Y') }}</p>
+            </div>
+            <div class="overview-item">
+                <h4>Duration</h4>
+                <p>{{ (trip.end_date - trip.start_date).days + 1 }} days</p>
+            </div>
+            <div class="overview-item">
+                <h4>Travelers</h4>
+                <p>{{ trip.num_travelers }}</p>
+            </div>
+            <div class="overview-item">
+                <h4>Accommodation</h4>
+                <p>{{ trip.accommodation_type|capitalize }}</p>
+            </div>
+            <div class="overview-item">
+                <h4>Transportation</h4>
+                <p>{{ trip.transportation|replace('_', ' ')|capitalize }}</p>
+            </div>
+        </div>
+        
+        <div class="d-flex justify-content-between">
+            <button class="btn btn-primary" id="generateItineraryBtn">
+                <i class="fas fa-magic me-2"></i> Generate Itinerary
+            </button>
+            <div>
+                <button class="btn btn-outline-primary me-2" id="saveItineraryBtn">
+                    <i class="fas fa-save me-2"></i> Save Itinerary
+                </button>
+                <a href="{{ url_for('trip_planner.print_itinerary', trip_id=trip.id) }}" class="btn btn-outline-secondary" target="_blank">
+                    <i class="fas fa-print me-2"></i> Print Itinerary
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Day Tabs -->
+    <div class="day-tabs">
+        {% for plan in daily_plans %}
+        <div class="day-tab {% if loop.first %}active{% endif %}" data-day="{{ plan.day_number }}">
+            <div class="day-number">Day {{ plan.day_number }}</div>
+            <div class="day-date">{{ plan.date.strftime('%b %d') }}</div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Day Content -->
+    {% for plan in daily_plans %}
+    <div class="day-content {% if loop.first %}active{% endif %}" id="day-{{ plan.day_number }}">
+        <div class="day-header">
+            <h2 class="day-title">{{ plan.title }}</h2>
+            <a href="{{ url_for('trip_planner.edit_daily_plan', trip_id=trip.id, day_id=plan.id) }}" class="btn btn-sm btn-outline-primary">
+                <i class="fas fa-edit me-1"></i> Edit Day
+            </a>
+        </div>
+        
+        <p>{{ plan.description }}</p>
+        
+        <!-- Map with attractions -->
+        <div class="map-container" id="map-day-{{ plan.day_number }}"></div>
+        
+        <!-- Timeline of activities -->
+        <div class="timeline">
+            {% for attraction in plan.attractions.order_by(DailyPlanAttraction.start_time).all() %}
+            <div class="timeline-item">
+                <div class="timeline-time">{{ attraction.start_time }}</div>
+                <div class="timeline-content">
+                    <h4>{{ attraction.attraction.name }}</h4>
+                    <p>{{ attraction.attraction.description }}</p>
+                    <div>
+                        <span class="badge bg-light text-dark">{{ attraction.attraction.category|capitalize }}</span>
+                        <span class="badge bg-light text-dark">{{ attraction.attraction.visit_duration }} min</span>
+                        {% if attraction.notes %}
+                        <p class="mt-2"><strong>Notes:</strong> {{ attraction.notes }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="text-center py-4">
+                <p class="text-muted">No activities planned for this day yet.</p>
+                <a href="{{ url_for('trip_planner.edit_daily_plan', trip_id=trip.id, day_id=plan.id) }}" class="btn btn-sm btn-primary">
+                    <i class="fas fa-plus me-1"></i> Add Activities
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Additional Information -->
+        <div class="row mt-4">
+            <div class="col-md-4">
+                <div class="accommodation-info">
+                    <h3 class="info-title"><i class="fas fa-bed"></i> Accommodation</h3>
+                    <div class="info-content">
+                        {% if plan.accommodation %}
+                        <p>{{ plan.accommodation }}</p>
+                        {% else %}
+                        <p>{{ trip.accommodation_type|capitalize }} accommodation</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="transportation-info">
+                    <h3 class="info-title"><i class="fas fa-car"></i> Transportation</h3>
+                    <div class="info-content">
+                        {% if plan.transportation %}
+                        <p>{{ plan.transportation }}</p>
+                        {% else %}
+                        <p>{{ trip.transportation|replace('_', ' ')|capitalize }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="meal-info">
+                    <h3 class="info-title"><i class="fas fa-utensils"></i> Meals</h3>
+                    <div class="info-content">
+                        {% if plan.meal_plan %}
+                        <p>{{ plan.meal_plan }}</p>
+                        {% else %}
+                        <p>Breakfast, Lunch, Dinner</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    
+    <!-- Deals Section -->
+    {% if deals %}
+    <div class="deals-section">
+        <h3><i class="fas fa-tags me-2"></i> Special Deals for Your Trip</h3>
+        <p>Apply these exclusive deals to save on your pilgrimage!</p>
+        
+        <div class="row">
+            {% for deal in deals %}
+            <div class="col-md-6 mb-3">
+                <div class="deal-card">
+                    <h4 class="deal-title">{{ deal.title }}</h4>
+                    <div class="deal-discount">{{ deal.discount_percentage }}% OFF</div>
+                    <p class="deal-description">{{ deal.description }}</p>
+                    <p class="deal-validity">Valid until: {{ deal.valid_to.strftime('%b %d, %Y') }}</p>
+                    <div class="mt-3">
+                        <span class="deal-code">{{ deal.code }}</span>
+                        <button class="btn btn-sm btn-warning apply-deal-btn" data-code="{{ deal.code }}">
+                            Apply Deal
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <div class="action-buttons">
+        <a href="{{ url_for('main.trip_details', trip_id=trip.id) }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i> Back to Trip Details
+        </a>
+        <a href="{{ url_for('main.dashboard') }}" class="btn btn-outline-primary">
+            <i class="fas fa-home me-2"></i> Dashboard
+        </a>
+        {% if trip.payment_status != 'paid' %}
+        <a href="{{ url_for('payment.checkout', trip_id=trip.id) }}" class="btn btn-success">
+            <i class="fas fa-credit-card me-2"></i> Proceed to Payment
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Deal Application Modal -->
+<div class="modal fade" id="dealModal" tabindex="-1" aria-labelledby="dealModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="dealModalLabel">Apply Deal Code</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="dealForm">
+                    <div class="mb-3">
+                        <label for="dealCode" class="form-label">Deal Code</label>
+                        <input type="text" class="form-control" id="dealCode" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="applyDealBtn">Apply Deal</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin=""></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Day tabs functionality
+    const dayTabs = document.querySelectorAll('.day-tab');
+    const dayContents = document.querySelectorAll('.day-content');
+    
+    dayTabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            const dayNumber = this.getAttribute('data-day');
+            
+            // Remove active class from all tabs and contents
+            dayTabs.forEach(t => t.classList.remove('active'));
+            dayContents.forEach(c => c.classList.remove('active'));
+            
+            // Add active class to selected tab and content
+            this.classList.add('active');
+            document.getElementById(`day-${dayNumber}`).classList.add('active');
+        });
+    });
+    
+    // Initialize maps for each day
+    {% for plan in daily_plans %}
+    initMap('map-day-{{ plan.day_number }}', {{ plan.id }});
+    {% endfor %}
+    
+    // Generate itinerary button
+    const generateItineraryBtn = document.getElementById('generateItineraryBtn');
+    generateItineraryBtn.addEventListener('click', function() {
+        if (confirm('This will replace your current itinerary. Are you sure you want to continue?')) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '{{ url_for("trip_planner.generate_itinerary", trip_id=trip.id) }}';
+            document.body.appendChild(form);
+            form.submit();
+        }
+    });
+    
+    // Save itinerary button
+    const saveItineraryBtn = document.getElementById('saveItineraryBtn');
+    saveItineraryBtn.addEventListener('click', function() {
+        this.disabled = true;
+        this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Saving...';
+        
+        fetch('{{ url_for("trip_planner.save_itinerary", trip_id=trip.id) }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+            } else {
+                alert('Error: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while saving the itinerary.');
+        })
+        .finally(() => {
+            this.disabled = false;
+            this.innerHTML = '<i class="fas fa-save me-2"></i> Save Itinerary';
+        });
+    });
+    
+    // Deal application
+    const applyDealBtns = document.querySelectorAll('.apply-deal-btn');
+    const dealModal = new bootstrap.Modal(document.getElementById('dealModal'));
+    const dealCodeInput = document.getElementById('dealCode');
+    const applyDealBtn = document.getElementById('applyDealBtn');
+    
+    applyDealBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const code = this.getAttribute('data-code');
+            dealCodeInput.value = code;
+            dealModal.show();
+        });
+    });
+    
+    applyDealBtn.addEventListener('click', function() {
+        const code = dealCodeInput.value.trim();
+        if (!code) {
+            alert('Please enter a deal code.');
+            return;
+        }
+        
+        this.disabled = true;
+        this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Applying...';
+        
+        const formData = new FormData();
+        formData.append('deal_code', code);
+        
+        fetch('{{ url_for("trip_planner.apply_deal", trip_id=trip.id) }}', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                dealModal.hide();
+                // Reload the page to reflect the changes
+                location.reload();
+            } else {
+                alert('Error: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while applying the deal.');
+        })
+        .finally(() => {
+            this.disabled = false;
+            this.innerHTML = 'Apply Deal';
+        });
+    });
+});
+
+// Initialize map for a specific day
+function initMap(mapId, dayId) {
+    const mapElement = document.getElementById(mapId);
+    if (!mapElement) return;
+    
+    // Initialize the map centered on the pilgrimage location
+    const map = L.map(mapId).setView([{{ trip.pilgrimage.latitude or 0 }}, {{ trip.pilgrimage.longitude or 0 }}], 13);
+    
+    // Add tile layer
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+    
+    // Add marker for the pilgrimage location
+    L.marker([{{ trip.pilgrimage.latitude or 0 }}, {{ trip.pilgrimage.longitude or 0 }}])
+        .addTo(map)
+        .bindPopup('{{ trip.pilgrimage.name }}')
+        .openPopup();
+    
+    // Add markers for attractions in this day's plan
+    {% for plan in daily_plans %}
+    {% if plan.id == dayId %}
+    {% for attraction in plan.attractions.all() %}
+    {% if attraction.attraction.latitude and attraction.attraction.longitude %}
+    L.marker([{{ attraction.attraction.latitude }}, {{ attraction.attraction.longitude }}])
+        .addTo(map)
+        .bindPopup('<strong>{{ attraction.attraction.name }}</strong><br>{{ attraction.start_time }}');
+    {% endif %}
+    {% endfor %}
+    {% endif %}
+    {% endfor %}
+}
+</script>
+{% endblock %}
+

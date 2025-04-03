@@ -1,0 +1,453 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Day {{ daily_plan.day_number }} - {{ trip.pilgrimage.name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .edit-day-container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+    
+    .edit-day-header {
+        background-color: #f8f9fa;
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 30px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+    
+    .dark .edit-day-header {
+        background-color: #2a2a2a;
+    }
+    
+    .edit-day-title {
+        font-family: 'Playfair Display', serif;
+        margin-bottom: 10px;
+    }
+    
+    .edit-day-subtitle {
+        color: #6c757d;
+        margin-bottom: 20px;
+    }
+    
+    .dark .edit-day-subtitle {
+        color: #aaa;
+    }
+    
+    .form-section {
+        background-color: #fff;
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 30px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+    
+    .dark .form-section {
+        background-color: #1e1e1e;
+    }
+    
+    .section-title {
+        font-size: 1.2rem;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #dee2e6;
+    }
+    
+    .dark .section-title {
+        border-bottom-color: #444;
+    }
+    
+    .attractions-container {
+        margin-top: 20px;
+    }
+    
+    .attraction-item {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 15px;
+        position: relative;
+    }
+    
+    .dark .attraction-item {
+        background-color: #2a2a2a;
+    }
+    
+    .attraction-item .remove-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: none;
+        border: none;
+        color: #dc3545;
+        cursor: pointer;
+    }
+    
+    .attraction-selector {
+        margin-bottom: 20px;
+    }
+    
+    .available-attractions {
+        max-height: 300px;
+        overflow-y: auto;
+        margin-top: 20px;
+    }
+    
+    .attraction-card {
+        display: flex;
+        background-color: #fff;
+        border-radius: 10px;
+        overflow: hidden;
+        margin-bottom: 15px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .dark .attraction-card {
+        background-color: #1e1e1e;
+    }
+    
+    .attraction-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .attraction-card.selected {
+        border: 2px solid #1a233e;
+    }
+    
+    .dark .attraction-card.selected {
+        border-color: var(--secondary-color);
+    }
+    
+    .attraction-image {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+    }
+    
+    .attraction-details {
+        flex: 1;
+        padding: 15px;
+    }
+    
+    .attraction-title {
+        font-size: 1.1rem;
+        margin-top: 0;
+        margin-bottom: 5px;
+    }
+    
+    .attraction-category {
+        display: inline-block;
+        background-color: #f8f9fa;
+        color: #6c757d;
+        padding: 3px 8px;
+        border-radius: 15px;
+        font-size: 0.8rem;
+        margin-bottom: 10px;
+    }
+    
+    .dark .attraction-category {
+        background-color: #2a2a2a;
+        color: #aaa;
+    }
+    
+    .attraction-description {
+        font-size: 0.9rem;
+        color: #6c757d;
+        margin-bottom: 10px;
+    }
+    
+    .dark .attraction-description {
+        color: #aaa;
+    }
+    
+    .attraction-meta {
+        display: flex;
+        font-size: 0.85rem;
+        color: #6c757d;
+    }
+    
+    .dark .attraction-meta {
+        color: #aaa;
+    }
+    
+    .attraction-meta div {
+        margin-right: 15px;
+    }
+    
+    .attraction-meta i {
+        margin-right: 5px;
+    }
+    
+    .action-buttons {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 30px;
+    }
+    
+    @media (max-width: 768px) {
+        .action-buttons {
+            flex-direction: column;
+            gap: 10px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="edit-day-container">
+    <div class="edit-day-header">
+        <h1 class="edit-day-title">Edit Day {{ daily_plan.day_number }}: {{ daily_plan.title }}</h1>
+        <p class="edit-day-subtitle">{{ daily_plan.date.strftime('%A, %B %d, %Y') }}</p>
+    </div>
+    
+    <form method="POST" action="{{ url_for('trip_planner.edit_daily_plan', trip_id=trip.id, day_id=daily_plan.id) }}">
+        <div class="form-section">
+            <h2 class="section-title">Day Information</h2>
+            
+            <div class="mb-3">
+                <label for="title" class="form-label">Day Title</label>
+                <input type="text" class="form-control" id="title" name="title" value="{{ daily_plan.title }}" required>
+            </div>
+            
+            <div class="mb-3">
+                <label for="description" class="form-label">Description</label>
+                <textarea class="form-control" id="description" name="description" rows="3">{{ daily_plan.description }}</textarea>
+            </div>
+        </div>
+        
+        <div class="form-section">
+            <h2 class="section-title">Accommodation & Transportation</h2>
+            
+            <div class="mb-3">
+                <label for="accommodation" class="form-label">Accommodation</label>
+                <input type="text" class="form-control" id="accommodation" name="accommodation" value="{{ daily_plan.accommodation or trip.accommodation_type|capitalize }}">
+                <small class="text-muted">Where you'll be staying on this day</small>
+            </div>
+            
+            <div class="mb-3">
+                <label for="transportation" class="form-label">Transportation</label>
+                <input type="text" class="form-control" id="transportation" name="transportation" value="{{ daily_plan.transportation or trip.transportation|replace('_', ' ')|capitalize }}">
+                <small class="text-muted">How you'll be getting around</small>
+            </div>
+            
+            <div class="mb-3">
+                <label for="meal_plan" class="form-label">Meal Plan</label>
+                <input type="text" class="form-control" id="meal_plan" name="meal_plan" value="{{ daily_plan.meal_plan or 'Breakfast, Lunch, Dinner' }}">
+                <small class="text-muted">Meals included for this day</small>
+            </div>
+        </div>
+        
+        <div class="form-section">
+            <h2 class="section-title">Attractions & Activities</h2>
+            <p>Add attractions and activities to your day plan.</p>
+            
+            <div class="attractions-container" id="attractionsContainer">
+                {% for attraction in daily_plan.attractions.order_by(DailyPlanAttraction.order).all() %}
+                <div class="attraction-item">
+                    <button type="button" class="remove-btn"><i class="fas fa-times"></i></button>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Attraction</label>
+                                <select class="form-select" name="attractions[]" required>
+                                    {% for avail_attraction in attractions %}
+                                    <option value="{{ avail_attraction.id }}" {% if avail_attraction.id == attraction.attraction_id %}selected{% endif %}>
+                                        {{ avail_attraction.name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label class="form-label">Start Time</label>
+                                <input type="text" class="form-control" name="start_times[]" value="{{ attraction.start_time }}" placeholder="HH:MM" required>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label class="form-label">Duration</label>
+                                <input type="text" class="form-control" value="{{ attraction.attraction.visit_duration }} min" disabled>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Notes</label>
+                        <textarea class="form-control" name="notes[]" rows="2">{{ attraction.notes }}</textarea>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <button type="button" class="btn btn-outline-primary" id="addAttractionBtn">
+                <i class="fas fa-plus me-2"></i> Add Attraction
+            </button>
+            
+            <div class="attraction-selector" id="attractionSelector" style="display: none;">
+                <h3 class="h5 mt-4 mb-3">Select an Attraction</h3>
+                
+                <div class="available-attractions">
+                    {% for attraction in attractions %}
+                    <div class="attraction-card" data-id="{{ attraction.id }}">
+                        <img src="{{ attraction.image_url or url_for('static', filename='images/placeholder.jpg') }}" class="attraction-image" alt="{{ attraction.name }}">
+                        <div class="attraction-details">
+                            <h4 class="attraction-title">{{ attraction.name }}</h4>
+                            <span class="attraction-category">{{ attraction.category|capitalize }}</span>
+                            <p class="attraction-description">{{ attraction.description|truncate(100) }}</p>
+                            <div class="attraction-meta">
+                                <div><i class="fas fa-clock"></i> {{ attraction.visit_duration }} min</div>
+                                {% if attraction.entrance_fee > 0 %}
+                                <div><i class="fas fa-ticket-alt"></i> ₹{{ attraction.entrance_fee }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <div class="d-flex justify-content-end mt-3">
+                    <button type="button" class="btn btn-secondary me-2" id="cancelSelectionBtn">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="confirmSelectionBtn">Add Selected</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="action-buttons">
+            <a href="{{ url_for('trip_planner.planner', trip_id=trip.id) }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i> Back to Planner
+            </a>
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save me-2"></i> Save Day Plan
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const attractionsContainer = document.getElementById('attractionsContainer');
+    const addAttractionBtn = document.getElementById('addAttractionBtn');
+    const attractionSelector = document.getElementById('attractionSelector');
+    const cancelSelectionBtn = document.getElementById('cancelSelectionBtn');
+    const confirmSelectionBtn = document.getElementById('confirmSelectionBtn');
+    const attractionCards = document.querySelectorAll('.attraction-card');
+    
+    // Handle remove buttons for existing attractions
+    document.querySelectorAll('.remove-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            if (confirm('Are you sure you want to remove this attraction?')) {
+                this.closest('.attraction-item').remove();
+            }
+        });
+    });
+    
+    // Show attraction selector
+    addAttractionBtn.addEventListener('click', function() {
+        this.style.display = 'none';
+        attractionSelector.style.display = 'block';
+    });
+    
+    // Hide attraction selector
+    cancelSelectionBtn.addEventListener('click', function() {
+        attractionSelector.style.display = 'none';
+        addAttractionBtn.style.display = 'block';
+    });
+    
+    // Handle attraction selection
+    let selectedAttractions = [];
+    
+    attractionCards.forEach(card => {
+        card.addEventListener('click', function() {
+            const attractionId = this.getAttribute('data-id');
+            
+            if (this.classList.contains('selected')) {
+                this.classList.remove('selected');
+                selectedAttractions = selectedAttractions.filter(id => id !== attractionId);
+            } else {
+                this.classList.add('selected');
+                selectedAttractions.push(attractionId);
+            }
+        });
+    });
+    
+    // Add selected attractions
+    confirmSelectionBtn.addEventListener('click', function() {
+        if (selectedAttractions.length === 0) {
+            alert('Please select at least one attraction.');
+            return;
+        }
+        
+        selectedAttractions.forEach(attractionId => {
+            const attraction = document.querySelector(`.attraction-card[data-id="${attractionId}"]`);
+            const attractionName = attraction.querySelector('.attraction-title').textContent;
+            
+            // Calculate a reasonable start time
+            const existingItems = document.querySelectorAll('.attraction-item').length;
+            const hour = 9 + Math.min(existingItems, 7);
+            const startTime = `${hour.toString().padStart(2, '0')}:00`;
+            
+            // Create new attraction item
+            const newItem = document.createElement('div');
+            newItem.className = 'attraction-item';
+            newItem.innerHTML = `
+                <button type="button" class="remove-btn"><i class="fas fa-times"></i></button>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Attraction</label>
+                            <select class="form-select" name="attractions[]" required>
+                                {% for attraction in attractions %}
+                                <option value="{{ attraction.id }}" ${attractionId == {{ attraction.id }} ? 'selected' : ''}>
+                                    {{ attraction.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="mb-3">
+                            <label class="form-label">Start Time</label>
+                            <input type="text" class="form-control" name="start_times[]" value="${startTime}" placeholder="HH:MM" required>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="mb-3">
+                            <label class="form-label">Duration</label>
+                            <input type="text" class="form-control" value="${attraction.querySelector('.attraction-meta div').textContent.trim()}" disabled>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Notes</label>
+                    <textarea class="form-control" name="notes[]" rows="2"></textarea>
+                </div>
+            ;`
+            
+            attractionsContainer.appendChild(newItem);
+            
+            // Add event listener to the new remove button
+            newItem.querySelector('.remove-btn').addEventListener('click', function() {
+                if (confirm('Are you sure you want to remove this attraction?')) {
+                    this.closest('.attraction-item').remove();
+                }
+            });
+        });
+        
+        // Reset selection
+        attractionCards.forEach(card => card.classList.remove('selected'));
+        selectedAttractions = [];
+        
+        // Hide selector and show add button
+        attractionSelector.style.display = 'none';
+        addAttractionBtn.style.display = 'block';
+    });
+});
+</script>
+{% endblock %}
+
